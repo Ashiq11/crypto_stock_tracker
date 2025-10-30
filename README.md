@@ -1,10 +1,10 @@
-# Crypto / Stock Tracker (AlphaVantage) - Angular v20 scaffold
+# Crypto / Stock Tracker (AlphaVantage) - Angular v20 
 
 This project is an Angular v20+ single-page application for tracking stocks and cryptocurrencies using AlphaVantage.
 
-## Setup
+ 1. ## Setup
 
-1. Clone or copy files into a directory.
+   Clone or copy files into a directory.
 2. Install dependencies:
 
     ```bash

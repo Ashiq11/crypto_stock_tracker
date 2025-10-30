@@ -23,15 +23,19 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^20.2.10",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
     "@angular/core": "^20.3.0",
     "@angular/forms": "^20.3.0",
+    "@angular/material": "^20.2.10",
     "@angular/platform-browser": "^20.3.0",
     "@angular/platform-server": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@angular/ssr": "^20.3.8",
+    "chart.js": "^4.5.1",
     "express": "^5.1.0",
+    "ng2-charts": "^8.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -42,12 +46,20 @@
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
+    "glob": "^9",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "lru-cache": "^10",
+    "rimraf": "^5",
     "typescript": "~5.9.2"
+  },
+  "resolutions": {
+    "glob": "^9.3.5",
+    "rimraf": "^5.0.5",
+    "inflight": "npm:lru-cache@^10.0.0"
   }
 }
