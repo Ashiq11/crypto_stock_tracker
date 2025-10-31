@@ -1,6 +1,4 @@
-# Crypto / Stock Tracker (AlphaVantage) - Angular v20 
-
-# Cryptocurrency & Stock Tracker Dashboard
+# Crypto / Stock Tracker (AlphaVantage) Dashboard - Angular v20 
 
 ## Overview
 
