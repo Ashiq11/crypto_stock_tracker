@@ -76,26 +76,23 @@ This project is a single-page Angular (v20+) application designed to track and c
 
 ## Setup Instructions
 
-1. Clone the repository: 
- ```bash
+1. Clone the repository:
+   ```bash
     git clone https://github.com/Ashiq11/crypto_stock_tracker.git
     cd crypto-stock-tracker
-    ```
 2. Install dependencies (using Yarn):
- ```bash
+   ```bash
     yarn install
-    ```
 3. Add your Alpha Vantage API key:
-  // src/environments/environment.ts
-  export const environment = {
+   ```bash
+   // src/environments/environment.ts
+   export const environment = {
     production: false,
     alphaVantageApiKey: 'QSJHUZEUS1BQAQCD', // replace with your key
-  };
-
+    
 4. Run the application:
- ```bash
+    ```bash
     yarn start
-    ```
 5. Open in browser:
-    http://localhost:4200
+   http://localhost:4200
 -------
