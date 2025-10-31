@@ -18,38 +18,38 @@ export class MarketService {
    * Returns a list of best matches. We map to AssetSummary.
   */
   searchSymbols(query: string): Observable<AssetSummary[]> {
-    if (!query || !query.trim()) return of([]);
+  if (!query || !query.trim()) return of([]);
 
-    const params = new HttpParams()
-      .set('function', 'SYMBOL_SEARCH')
-      .set('keywords', query)
-      .set('apikey', this.key);
+  const params = new HttpParams()
+    .set('function', 'SYMBOL_SEARCH')
+    .set('keywords', query.trim())
+    .set('apikey', this.key);
 
-    const cacheKey = `search:${query.toLowerCase()}`;
-    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
+  const obs = this.http.get<any>(this.base, { params }).pipe(
+    map(res => {
+      if (!res || !Array.isArray(res.bestMatches)) {
+        console.error('Alpha Vantage API returned unexpected payload:', res);
+        throw new Error(res?.Note || res?.Information || 'Unexpected API response');
+      }
 
-    const obs = this.http.get<any>(this.base, { params }).pipe(
-      map(res => {
-        const best = res?.bestMatches || [];
-        return best.map((m: any) => ({
-          symbol: m['1. symbol'],
-          name: m['2. name'],
-          type: 'stock' as const,
-          region: m['4. region'],
-          currency: m['8. currency'] || 'USD',
-          matchScore: parseFloat(m['9. matchScore'] || '0')
-        }) as AssetSummary);
-      }),
-      catchError(err => {
-        console.error('searchSymbols error', err);
-        return throwError(() => new Error('Failed to search symbols'));
-      }),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+      return res.bestMatches.map((m: any) => ({
+        symbol: m['1. symbol'],
+        name: m['2. name'],
+        type: 'stock' as const,
+        region: m['4. region'],
+        currency: m['8. currency'] || 'USD',
+        matchScore: parseFloat(m['9. matchScore'] || '0')
+      }));
+    }),
+    catchError(err => {
+      console.error('searchSymbols error', err);
+      return throwError(() => new Error('Failed to search symbols'));
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
 
-    this.cache.set(cacheKey, obs);
-    return obs;
-  }
+  return obs;
+}
 
   /** TIME_SERIES_DAILY_ADJUSTED for stocks */
   getStockDaily(symbol: string, outputSize: 'compact' | 'full' = 'compact'): Observable<{ date: string; close: number }[]> {

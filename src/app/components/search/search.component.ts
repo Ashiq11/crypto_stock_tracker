@@ -43,7 +43,7 @@ export class SearchComponent implements OnInit {
 
   ngOnInit(): void {
     this.suggestions$ = this.control.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(400),
       map(v => (v || '').trim()),
       filter((v: string) => v.length > 0),
       distinctUntilChanged(),
