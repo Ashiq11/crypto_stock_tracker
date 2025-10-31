@@ -12,14 +12,20 @@
     "isolatedModules": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "ES2022",
-    "module": "preserve"
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+   "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "customConditions": ["browser", "development"],
+    "lib": ["ES2022", "DOM"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "typeCheckHostBindings": true,
+    "enableIvy": true,
     "strictTemplates": true
   },
   "files": [],

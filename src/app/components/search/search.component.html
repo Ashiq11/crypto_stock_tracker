@@ -1,0 +1,28 @@
+<mat-form-field class="search-field" appearance="outline">
+  <input
+    type="text"
+    matInput
+    placeholder="Search stock or crypto (e.g. AAPL, BTC)"
+    [formControl]="control"
+    [matAutocomplete]="auto"
+    aria-label="Search"
+  />
+  <button mat-icon-button matSuffix *ngIf="control.value" (click)="clear()" aria-label="clear">
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-progress-spinner *ngIf="loading" matSuffix diameter="20" mode="indeterminate"></mat-progress-spinner>
+</mat-form-field>
+
+<mat-autocomplete #auto="matAutocomplete" (optionSelected)="select($event.option.value)">
+  <mat-option *ngFor="let s of (suggestions$ | async); trackBy: trackBySymbol" [value]="s">
+    <div class="option-line">
+      <div class="symbol">{{ s.symbol }}</div>
+      <div class="meta">{{ s.name }} <span *ngIf="s.region">— {{s.region}}</span></div>
+    </div>
+  </mat-option>
+  <mat-option *ngIf="(suggestions$ | async)?.length === 0 && !loading && control.value">
+    <span class="no-results">No results found</span>
+  </mat-option>
+</mat-autocomplete>
+
+<div *ngIf="error" class="error">{{ error }}</div>
