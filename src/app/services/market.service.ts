@@ -7,15 +7,18 @@ import { AssetSummary, AssetDetail } from '../models/asset.model';
 
 @Injectable({ providedIn: 'root' })
 export class MarketService {
-  private base = environment.alphaVantageBaseUrl;
-  private key = environment.alphaVantageApiKey;
+  private base = environment.alphaVantageBaseUrl || 'https://www.alphavantage.co/query';
+  private key = environment.alphaVantageApiKey || 'demo';
   private cache = new Map<string, Observable<any>>();
 
   constructor(private http: HttpClient) { }
 
-  /** Search symbols using SYMBOL_SEARCH */
+  /**
+   * Search symbols using SYMBOL_SEARCH 
+   * Returns a list of best matches. We map to AssetSummary.
+  */
   searchSymbols(query: string): Observable<AssetSummary[]> {
-    if (!query || query.trim().length === 0) return of([]);
+    if (!query || !query.trim()) return of([]);
 
     const params = new HttpParams()
       .set('function', 'SYMBOL_SEARCH')
@@ -49,24 +52,26 @@ export class MarketService {
   }
 
   /** TIME_SERIES_DAILY_ADJUSTED for stocks */
-  getStockDaily(symbol: string): Observable<{ date: string; close: number }[]> {
+  getStockDaily(symbol: string, outputSize: 'compact' | 'full' = 'compact'): Observable<{ date: string; close: number }[]> {
+    const cacheKey = `stockDaily:${symbol.toUpperCase()}:${outputSize}`;
+    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
+
     const params = new HttpParams()
       .set('function', 'TIME_SERIES_DAILY_ADJUSTED')
       .set('symbol', symbol)
-      .set('outputsize', 'compact')
+      .set('outputsize', outputSize)
       .set('apikey', this.key);
-
-    const cacheKey = `stockDaily:${symbol.toUpperCase()}`;
-    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
 
     const obs = this.http.get<any>(this.base, { params }).pipe(
       map(res => {
         const series = res['Time Series (Daily)'] || {};
-        return Object.keys(series).map(date => ({ date, close: parseFloat(series[date]['4. close']) })).sort((a, b) => a.date.localeCompare(b.date));
+        return Object.keys(series)
+          .map(date => ({ date, close: parseFloat(series[date]['4. close']) }))
+          .sort((a, b) => a.date.localeCompare(b.date)); // ascending
       }),
       catchError(err => {
-        console.error('getStockDaily', err);
-        return throwError(() => new Error('Failed to load stock series'));
+        console.error('MarketService.getStockDaily error', err);
+        return of([] as { date: string; close: number }[]);
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -75,25 +80,29 @@ export class MarketService {
     return obs;
   }
 
-  /** DIGITAL_CURRENCY_DAILY for cryptos */
+  /**
+   * DIGITAL_CURRENCY_DAILY for cryptos (close in USD)
+   */
   getCryptoDaily(symbol: string): Observable<{ date: string; close: number }[]> {
+    const cacheKey = `cryptoDaily:${symbol.toUpperCase()}`;
+    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
+
     const params = new HttpParams()
       .set('function', 'DIGITAL_CURRENCY_DAILY')
       .set('symbol', symbol)
       .set('market', 'USD')
       .set('apikey', this.key);
 
-    const cacheKey = `cryptoDaily:${symbol.toUpperCase()}`;
-    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
-
     const obs = this.http.get<any>(this.base, { params }).pipe(
       map(res => {
         const series = res['Time Series (Digital Currency Daily)'] || {};
-        return Object.keys(series).map(date => ({ date, close: parseFloat(series[date]['4a. close (USD)']) })).sort((a, b) => a.date.localeCompare(b.date));
+        return Object.keys(series)
+          .map(date => ({ date, close: parseFloat(series[date]['4a. close (USD)']) }))
+          .sort((a, b) => a.date.localeCompare(b.date));
       }),
       catchError(err => {
-        console.error('getCryptoDaily', err);
-        return throwError(() => new Error('Failed to load crypto series'));
+        console.error('MarketService.getCryptoDaily error', err);
+        return of([] as { date: string; close: number }[]);
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -102,7 +111,45 @@ export class MarketService {
     return obs;
   }
 
-  /** Lightweight asset detail: uses the latest point from its series */
+  /**
+   * TIME_SERIES_INTRADAY - optional, for intraday view
+   * interval examples: '1min', '5min', '15min', '30min', '60min'
+   */
+  getIntraday(symbol: string, interval: '1min' | '5min' | '15min' | '30min' | '60min' = '5min'): Observable<{ date: string; close: number }[]> {
+    const cacheKey = `intraday:${symbol.toUpperCase()}:${interval}`;
+    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
+
+    const params = new HttpParams()
+      .set('function', 'TIME_SERIES_INTRADAY')
+      .set('symbol', symbol)
+      .set('interval', interval)
+      .set('outputsize', 'compact')
+      .set('apikey', this.key);
+
+    const obs = this.http.get<any>(this.base, { params }).pipe(
+      map(res => {
+        // key name varies by interval
+        const keyName = Object.keys(res).find(k => k.includes('Time Series'));
+        const series = keyName ? res[keyName] : {};
+        return Object.keys(series)
+          .map((date: string) => ({ date, close: parseFloat(series[date]['4. close']) }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+      }),
+      catchError(err => {
+        console.error('MarketService.getIntraday error', err);
+        return of([] as { date: string; close: number }[]);
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    this.cache.set(cacheKey, obs);
+    return obs;
+  }
+
+  /**
+   * Lightweight AssetDetail builder: picks the right series method based on type
+   * summary.type must be either 'stock' or 'crypto'
+   */
   getAssetDetail(summary: AssetSummary): Observable<AssetDetail> {
     if (summary.type === 'crypto') {
       return this.getCryptoDaily(summary.symbol).pipe(
@@ -111,7 +158,7 @@ export class MarketService {
           return {
             symbol: summary.symbol,
             name: summary.name,
-            type: 'crypto' as const,
+            type: 'crypto',
             currentPrice: last ? last.close : 0,
             currency: 'USD',
             lastUpdated: last?.date,
@@ -130,7 +177,7 @@ export class MarketService {
           return {
             symbol: summary.symbol,
             name: summary.name,
-            type: 'stock' as const,
+            type: 'stock',
             currentPrice: last ? last.close : 0,
             currency: summary.currency || 'USD',
             lastUpdated: last?.date,

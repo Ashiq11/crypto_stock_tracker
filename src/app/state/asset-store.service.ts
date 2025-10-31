@@ -5,22 +5,36 @@ import { MarketService } from '../services/market.service';
 
 @Injectable({ providedIn: 'root' })
 export class AssetStoreService {
+  // selected asset details (max 5)
   private selectedSubj = new BehaviorSubject<AssetDetail[]>([]);
   selected$: Observable<AssetDetail[]> = this.selectedSubj.asObservable();
 
-  private timeRangeSubj = new BehaviorSubject<'7d'|'30d'|'6m'|'1y'>('30d');
+  // time range for charts
+  private timeRangeSubj = new BehaviorSubject<'7d' | '30d' | '6m' | '1y'>('30d');
   timeRange$ = this.timeRangeSubj.asObservable();
 
-  constructor(private market: MarketService) {}
+  // simple helper to read current array
+  get selectedValue(): AssetDetail[] {
+    return this.selectedSubj.getValue();
+  }
+
+  constructor(private market: MarketService) { }
 
   addAsset(summary: AssetSummary) {
     const current = this.selectedSubj.getValue();
-    if (current.find(a => a.symbol === summary.symbol)) return;
+    if (!summary) return;
+    if (current.find(a => a.symbol === summary.symbol)) return; // already present
     if (current.length >= 5) return; // limit
-    this.market.getAssetDetail(summary).subscribe(detail => {
-      this.selectedSubj.next([...this.selectedSubj.getValue(), detail]);
-    }, err => {
-      console.error('Failed to add asset', err);
+
+    // fetch detail (market.getAssetDetail caches underlying series)
+    this.market.getAssetDetail(summary).subscribe({
+      next: (detail) => {
+        // append
+        this.selectedSubj.next([...this.selectedSubj.getValue(), detail]);
+      },
+      error: (err) => {
+        console.error('AssetStoreService.addAsset error', err);
+      }
     });
   }
 
@@ -28,11 +42,11 @@ export class AssetStoreService {
     this.selectedSubj.next(this.selectedSubj.getValue().filter(a => a.symbol !== symbol));
   }
 
-  setTimeRange(range: '7d'|'30d'|'6m'|'1y') {
-    this.timeRangeSubj.next(range);
-  }
-
   clear() {
     this.selectedSubj.next([]);
+  }
+
+  setTimeRange(range: '7d' | '30d' | '6m' | '1y') {
+    this.timeRangeSubj.next(range);
   }
 }

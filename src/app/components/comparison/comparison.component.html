@@ -3,21 +3,45 @@
   <div class="hint">You can compare up to 5 assets</div>
 </div>
 
-<div class="cards" *ngIf="(selected$ | async) as list">
-  <mat-card *ngFor="let a of list; trackBy: trackBySymbol" class="asset-card">
-    <mat-card-header>
-      <mat-card-title>{{ a.symbol }}</mat-card-title>
-      <mat-card-subtitle>{{ a.name }}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="metric"><span class="label">Price</span><span class="value">{{ a.currentPrice | number:'1.2-2' }} {{ a.currency }}</span></div>
-      <div class="metric"><span class="label">Last</span><span class="value">{{ a.lastUpdated }}</span></div>
-      <div class="metric" *ngIf="a.marketCap"><span class="label">Market Cap</span><span class="value">{{ a.marketCap | number }}</span></div>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-icon-button aria-label="remove" (click)="remove(a.symbol)"><mat-icon>close</mat-icon></button>
-    </mat-card-actions>
-  </mat-card>
-</div>
+@if (selected$ | async; as list) {
+  <div class="cards">
+    @for (a of list; track a.symbol) {
+      <mat-card class="asset-card">
+        <mat-card-header>
+          <mat-card-title>{{ a.symbol }}</mat-card-title>
+          <mat-card-subtitle>{{ a.name }}</mat-card-subtitle>
+        </mat-card-header>
 
-<div *ngIf="(selected$ | async)?.length === 0" class="empty">No assets selected. Use the search above to add.</div>
+        <mat-card-content>
+          <div class="metric">
+            <span class="label">Price</span>
+            <span class="value">{{ a.currentPrice | number:'1.2-2' }} {{ a.currency }}</span>
+          </div>
+
+          <div class="metric">
+            <span class="label">Last</span>
+            <span class="value">{{ a.lastUpdated }}</span>
+          </div>
+
+          @if (a.marketCap) {
+            <div class="metric">
+              <span class="label">Market Cap</span>
+              <span class="value">{{ a.marketCap | number }}</span>
+            </div>
+          }
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button
+            mat-icon-button
+            aria-label="remove"
+            (click)="remove(a.symbol)">
+            <mat-icon>X</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+} @else {
+  <div class="empty">No assets selected. Use the search above to add.</div>
+}

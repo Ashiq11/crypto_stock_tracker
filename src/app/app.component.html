@@ -1,10 +1,22 @@
 <mat-toolbar color="primary">
-  <!-- <mat-icon>show_chart</mat-icon> -->
-  <span style="margin-left:8px">Crypto / Stock Tracker (AlphaVantage)</span>
+  <!-- Header -->
+  <header class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">📊 Crypto & Stock Tracker</h1>
+  </header>
 </mat-toolbar>
-
 <div class="container">
-  <search-component></search-component>
-  <comparison-component></comparison-component>
-  <chart-component></chart-component>
+  <!-- Search Bar -->
+  <section class="mb-4">
+    <search-component></search-component>
+  </section>
+
+  <!-- Comparison Table -->
+  <section class="mb-4">
+    <comparison-component></comparison-component>
+  </section>
+
+  <!-- Chart Section -->
+  <section class="chart-section">
+    <chart-component></chart-component>
+  </section>
 </div>

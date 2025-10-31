@@ -1,14 +1,14 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocomplete, MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, switchMap, tap, catchError } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, switchMap, tap, catchError, map } from 'rxjs/operators';
 import { MarketService } from '../../services/market.service';
 import { AssetStoreService } from '../../state/asset-store.service';
 import { AssetSummary } from '../../models/asset.model';
@@ -34,25 +34,30 @@ export class SearchComponent implements OnInit {
   control = new FormControl('');
   suggestions$: Observable<AssetSummary[]> = of([]);
   loading = false;
-  error = '';
+  error: string | null = null;
+
+  // Declare the template reference for the autocomplete
+  @ViewChild('auto', { static: true }) auto!: MatAutocomplete;
 
   constructor(private market: MarketService, private store: AssetStoreService) { }
 
   ngOnInit(): void {
     this.suggestions$ = this.control.valueChanges.pipe(
       debounceTime(300),
-      filter((term): term is string => !!term && term.trim().length > 0),
+      map(v => (v || '').trim()),
+      filter((v: string) => v.length > 0),
       distinctUntilChanged(),
+      tap(() => { this.loading = true; this.error = ''; }),
       switchMap((term: string) =>
         this.market.searchSymbols(term).pipe(
           catchError(err => {
             console.error('search error', err);
             this.error = 'Search failed. Try again later.';
-            return of([]);
+            return of([] as AssetSummary[]);
           })
         )
       ),
-      tap(() => (this.loading = false))
+      tap(() => { this.loading = false; })
     );
   }
 
