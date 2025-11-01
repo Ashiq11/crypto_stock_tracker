@@ -69,56 +69,30 @@ This project is a single-page Angular (v20+) application designed to track and c
 ---
 
 ## Sequence Diagram:
-User types “AAPL”
-    ↓
-SearchComponent (debounced input)
-    ↓
-AssetStoreService.searchAssets("AAPL")
-    ↓
-MarketService (calls SYMBOL_SEARCH endpoint)
-    ↓
-Alpha Vantage → JSON list of matching stocks
-    ↓
-SearchComponent shows dropdown
-    ↓
-User clicks “Apple Inc (AAPL)”
-    ↓
-AssetStoreService.addAsset("AAPL", "stock")
-    ↓
-MarketService.getStockDaily("AAPL")
-    ↓
-Parsed { date, open, high, low, close }[]
-    ↓
-ChartComponent + ComparisonComponent render candlestick chart + table
+<img width="534" height="486" alt="image" src="https://github.com/user-attachments/assets/b1305b01-bcbd-4694-9fa7-cce27bc72435" />
+
 
 -------
 
 ## Setup Instructions
 
-1. Clone the repository:  
-```bash
-git clone https://github.com/Ashiq11/crypto_stock_tracker.git
-cd crypto-stock-tracker
-
-    Install dependencies (using Yarn):
-
-yarn install
-
-    Add your Alpha Vantage API key:
-
-// src/environments/environment.ts
-export const environment = {
-  production: false,
-  alphaVantageApiKey: 'QSJHUZEUS1BQAQCD', // replace with your key
-};
-
-    Run the application:
-
-yarn start
-
-    Open in browser:
-
-http://localhost:4200
-
-
+1. Clone the repository:
+   ```bash
+    git clone https://github.com/Ashiq11/crypto_stock_tracker.git
+    cd crypto-stock-tracker
+2. Install dependencies (using Yarn):
+   ```bash
+    yarn install
+3. Add your Alpha Vantage API key:
+   ```bash
+   // src/environments/environment.ts
+   export const environment = {
+    production: false,
+    alphaVantageApiKey: 'QSJHUZEUS1BQAQCD', // replace with your key
+    
+4. Run the application:
+    ```bash
+    yarn start
+5. Open in browser:
+   http://localhost:4200
 -------
