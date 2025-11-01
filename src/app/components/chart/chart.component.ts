@@ -1,71 +1,100 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgChartsModule } from 'ng2-charts';
-import type { ChartConfiguration, ChartOptions, ChartDataset, ChartData } from 'chart.js';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
+import { Chart, ChartDataset, ChartOptions, FinancialDataPoint, registerables } from 'chart.js';
+import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
+import 'chartjs-adapter-date-fns';
 import { AssetStoreService } from '../../state/asset-store.service';
 import { combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { CommonModule } from '@angular/common';
+// Register Chart.js and financial plugin
+Chart.register(...registerables, CandlestickController, CandlestickElement);
 
 @Component({
   selector: 'chart-component',
   standalone: true,
-  imports: [CommonModule, NgChartsModule, MatSelectModule, MatFormFieldModule],
+  imports: [CommonModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartComponent implements OnInit {
-  // Explicitly typed for line charts
-  public chartData: ChartData<'line', number[], string | unknown> = { labels: [], datasets: [] };
-  public chartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { position: 'top' } }
-  };
-
+  @ViewChild('chartCanvas', { static: false }) canvas!: ElementRef<HTMLCanvasElement>;
+  chart!: Chart<'candlestick', FinancialDataPoint[], unknown>;
+  chartData: { datasets: ChartDataset<'candlestick', FinancialDataPoint[]>[] } = { datasets: [] };
   timeRange: '7d' | '30d' | '6m' | '1y' = '30d';
 
-  constructor(private store: AssetStoreService) { }
+  chartOptions: ChartOptions<'candlestick'> = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const d = ctx.raw as FinancialDataPoint;
+            return `O: ${d.o}, H: ${d.h}, L: ${d.l}, C: ${d.c}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { 
+        type: 'time', 
+        time: { tooltipFormat: 'MMM dd, yyyy', unit: 'day' }, 
+        title: { display: true, text: 'Date' } 
+      },
+      y: { title: { display: true, text: 'Price (USD)' } }
+    }
+  };
 
-  ngOnInit(): void {
+  constructor(private store: AssetStoreService) {}
+
+  ngOnInit() {
     combineLatest([this.store.selected$, this.store.timeRange$])
       .pipe(
-        switchMap(([list, range]) => {
-          if (!list || list.length === 0) {
-            this.chartData = { labels: [], datasets: [] };
+        switchMap(([assets, range]) => {
+          if (!assets || assets.length === 0) {
+            this.chartData.datasets = [];
             return of(null);
           }
 
-          // build typed datasets
-          const datasets: ChartDataset<'line', number[]>[] = list.map(asset => {
-            const full = asset.history || [];
-            const sliced = this.sliceByRange(full, range);
-            const data = sliced.map(p => p.close);
-            const ds: ChartDataset<'line', number[]> = {
+          // build datasets
+          this.chartData.datasets = assets.map(asset => {
+            const sliced = this.sliceByRange(asset.history || [], range);
+            return {
               label: asset.symbol,
-              data,
-              tension: 0.2,
-              fill: false
+              data: sliced.map(p => ({
+                x: new Date(p.date).getTime(),
+                o: p.open,
+                h: p.high,
+                l: p.low,
+                c: p.close
+              })),
+              borderColor: 'rgba(54, 162, 235, 0.8)',
+              color: { up: 'rgba(34,197,94,1)', down: 'rgba(239,68,68,1)', unchanged: 'rgba(107,114,128,1)' }
             };
-            return ds;
           });
 
-          // labels: use dates from first series (ascending)
-          const firstSeries = list[0].history || [];
-          const labels = this.sliceByRange(firstSeries, range).map(p => p.date);
-
-          this.chartData = { labels, datasets };
+          setTimeout(() => this.renderChart(), 0); // after DOM ready
           return of(this.chartData);
         })
       )
-      .subscribe({ next: () => { }, error: (e) => console.error(e) });
+      .subscribe();
   }
 
-  sliceByRange(series: { date: string; close: number }[], range: '7d' | '30d' | '6m' | '1y') {
-    if (!series || series.length === 0) return [];
+  renderChart() {
+    if (!this.canvas) return;
+    if (this.chart) this.chart.destroy();
+
+    this.chart = new Chart(this.canvas.nativeElement, {
+      type: 'candlestick',
+      data: this.chartData,
+      options: this.chartOptions
+    });
+  }
+
+  sliceByRange(series: any[], range: '7d' | '30d' | '6m' | '1y') {
     const n = series.length;
     let take = 30;
     switch (range) {
@@ -78,7 +107,7 @@ export class ChartComponent implements OnInit {
   }
 
   onTimeRangeChange(range: '7d' | '30d' | '6m' | '1y') {
-    this.store.setTimeRange(range);
     this.timeRange = range;
+    this.store.setTimeRange(range);
   }
 }

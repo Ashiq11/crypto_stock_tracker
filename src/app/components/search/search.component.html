@@ -3,8 +3,8 @@
     [matAutocomplete]="auto" aria-label="Search" />
 
   @if (control.value) {
-  <button mat-icon-button matSuffix (click)="clear()" aria-label="clear">
-    <mat-icon>X</mat-icon>
+  <button mat-icon-button matSuffix (click)="clear()" aria-label="Clear">
+    <mat-icon fontSet="material-icons" fontIcon="close">X</mat-icon>
   </button>
   }
 
@@ -28,10 +28,12 @@
     </div>
   </mat-option>
   }
-  @if((suggestions$ | async)?.length === 0 && !loading && control.value){
+
+  @if ((suggestions$ | async)?.length === 0 && !loading && control.value) {
   <mat-option>
     <span class="no-results">No results found</span>
-  </mat-option>}
+  </mat-option>
+  }
 </mat-autocomplete>
 
 @if (error) {

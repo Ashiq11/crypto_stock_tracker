@@ -21,20 +21,15 @@ export class AssetStoreService {
   constructor(private market: MarketService) { }
 
   addAsset(summary: AssetSummary) {
-    const current = this.selectedSubj.getValue();
     if (!summary) return;
-    if (current.find(a => a.symbol === summary.symbol)) return; // already present
-    if (current.length >= 5) return; // limit
 
-    // fetch detail (market.getAssetDetail caches underlying series)
+    const current = this.selectedSubj.getValue();
+    if (current.find(a => a.symbol === summary.symbol)) return;
+    if (current.length >= 5) return;
+
     this.market.getAssetDetail(summary).subscribe({
-      next: (detail) => {
-        // append
-        this.selectedSubj.next([...this.selectedSubj.getValue(), detail]);
-      },
-      error: (err) => {
-        console.error('AssetStoreService.addAsset error', err);
-      }
+      next: (detail) => this.selectedSubj.next([...current, detail]),
+      error: (err) => console.error('AssetStoreService.addAsset error', err)
     });
   }
 

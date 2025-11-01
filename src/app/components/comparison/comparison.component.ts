@@ -21,6 +21,7 @@ export class ComparisonComponent {
   constructor(private store: AssetStoreService) { }
 
   ngOnInit(): void {
+    // Subscribe to selected assets
     this.selected$ = this.store.selected$;
   }
 

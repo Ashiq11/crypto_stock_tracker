@@ -4,44 +4,56 @@
 </div>
 
 @if (selected$ | async; as list) {
-  <div class="cards">
-    @for (a of list; track a.symbol) {
-      <mat-card class="asset-card">
-        <mat-card-header>
-          <mat-card-title>{{ a.symbol }}</mat-card-title>
-          <mat-card-subtitle>{{ a.name }}</mat-card-subtitle>
-        </mat-card-header>
+<div class="cards">
+  @for (a of list; track a.symbol) {
+  <mat-card class="asset-card">
+    <mat-card-header>
+      <mat-card-title>{{ a.symbol }}</mat-card-title>
+      <mat-card-subtitle>{{ a.name }}</mat-card-subtitle>
+    </mat-card-header>
 
-        <mat-card-content>
-          <div class="metric">
-            <span class="label">Price</span>
-            <span class="value">{{ a.currentPrice | number:'1.2-2' }} {{ a.currency }}</span>
-          </div>
+    <mat-card-content>
+      <div class="metric">
+        <span class="label">Price</span>
+        <span class="value">{{ a.currentPrice | number:'1.2-2' }} {{ a.currency }}</span>
+      </div>
 
-          <div class="metric">
-            <span class="label">Last</span>
-            <span class="value">{{ a.lastUpdated }}</span>
-          </div>
+      <div class="metric">
+        <span class="label">Last Updated</span>
+        <span class="value">{{ a.lastUpdated }}</span>
+      </div>
 
-          @if (a.marketCap) {
-            <div class="metric">
-              <span class="label">Market Cap</span>
-              <span class="value">{{ a.marketCap | number }}</span>
-            </div>
-          }
-        </mat-card-content>
+      @if (a.marketCap) {
+      <div class="metric">
+        <span class="label">Market Cap</span>
+        <span class="value">{{ a.marketCap | number }}</span>
+      </div>
+      }
 
-        <mat-card-actions>
-          <button
-            mat-icon-button
-            aria-label="remove"
-            (click)="remove(a.symbol)">
-            <mat-icon>X</mat-icon>
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    }
-  </div>
+      @if (a.meta) {
+      <div class="metric">
+        <span class="label">Last Refreshed</span>
+        <span class="value">{{ a.meta.lastRefreshed }}</span>
+      </div>
+      <div class="metric">
+        <span class="label">Output Size</span>
+        <span class="value">{{ a.meta.outputSize }}</span>
+      </div>
+      <div class="metric">
+        <span class="label">Time Zone</span>
+        <span class="value">{{ a.meta.timeZone }}</span>
+      </div>
+      }
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-icon-button aria-label="remove" (click)="remove(a.symbol)">
+        <mat-icon>X</mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+  }
+</div>
 } @else {
-  <div class="empty">No assets selected. Use the search above to add.</div>
+<div class="empty">No assets selected. Use the search above to add.</div>
 }

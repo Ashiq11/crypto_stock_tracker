@@ -47,7 +47,7 @@ export class SearchComponent implements OnInit {
       map(v => (v || '').trim()),
       filter((v: string) => v.length > 0),
       distinctUntilChanged(),
-      tap(() => { this.loading = true; this.error = ''; }),
+      tap(() => { this.loading = true; this.error = null; }),
       switchMap((term: string) =>
         this.market.searchSymbols(term).pipe(
           catchError(err => {
@@ -61,21 +61,21 @@ export class SearchComponent implements OnInit {
     );
   }
 
-  displayFn(item?: AssetSummary) {
+ displayFn(item?: AssetSummary): string {
     return item ? `${item.symbol} — ${item.name}` : '';
   }
 
-  select(item: AssetSummary | null) {
+  select(item: AssetSummary | null): void {
     if (!item) return;
     this.store.addAsset(item);
     this.control.setValue('');
   }
 
-  clear() {
+  clear(): void {
     this.control.setValue('');
   }
 
-  trackBySymbol(index: number, item: AssetSummary) {
+  trackBySymbol(index: number, item: AssetSummary): string {
     return item.symbol;
   }
 }

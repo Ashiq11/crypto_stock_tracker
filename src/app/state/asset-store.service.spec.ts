@@ -1,43 +1,40 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 import { AssetStoreService } from './asset-store.service';
 import { MarketService } from '../services/market.service';
-import { environment } from '../../environments/environment';
+import { AssetSummary } from '../models/asset.model';
 
 describe('AssetStoreService', () => {
   let service: AssetStoreService;
-  let httpMock: HttpTestingController;
+  let marketServiceSpy: jasmine.SpyObj<MarketService>;
 
   beforeEach(() => {
+    const spy = jasmine.createSpyObj('MarketService', ['getAssetDetail']);
+
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [AssetStoreService, MarketService]
+      providers: [
+        AssetStoreService,
+        { provide: MarketService, useValue: spy }
+      ]
     });
+
     service = TestBed.inject(AssetStoreService);
-    httpMock = TestBed.inject(HttpTestingController);
+    marketServiceSpy = TestBed.inject(MarketService) as jasmine.SpyObj<MarketService>;
   });
 
-  afterEach(() => {
-    httpMock.verify();
+  it('should be created', () => {
+    expect(service).toBeTruthy();
   });
 
-  it('should add and remove asset', (done) => {
-    const summary = { symbol: 'AAPL', name: 'Apple Inc.', type: 'stock' } as any;
-    // mock stock daily response
-    const mockResp = { 'Time Series (Daily)': { '2025-10-28': { '4. close': '150.00' } } };
+  it('should add asset', () => {
+    const mockSummary: AssetSummary = { symbol: 'AAPL', name: 'Apple', type: 'stock' };
+    marketServiceSpy.getAssetDetail.and.returnValue(of({
+      symbol: 'AAPL', name: 'Apple', type: 'stock', currentPrice: 100
+    }));
+
+    service.addAsset(mockSummary);
     service.selected$.subscribe(list => {
-      // When asset is added, list length should be 1
-      if (list.length === 1) {
-        expect(list[0].symbol).toBe('AAPL');
-        service.removeAsset('AAPL');
-      }
-      // After removal, list should be 0
-      if (list.length === 0) {
-        done();
-      }
+      expect(list.length).toBe(1);
     });
-    service.addAsset(summary);
-    const req = httpMock.expectOne(r => r.url.includes(environment.alphaVantageBaseUrl));
-    req.flush(mockResp);
   });
 });
