@@ -96,3 +96,9 @@ This project is a single-page Angular (v20+) application designed to track and c
 5. Open in browser:
    http://localhost:4200
 -------
+## Dashboard Visualization 
+<img width="1350" height="607" alt="image" src="https://github.com/user-attachments/assets/80e13c21-491d-4474-940e-f77c1ba794d2" />
+<img width="1343" height="571" alt="image" src="https://github.com/user-attachments/assets/f504c742-176f-40ef-96f5-156461da5c13" />
+<img width="1285" height="602" alt="image" src="https://github.com/user-attachments/assets/626d446b-fc9f-47bf-a520-d297b17fe73a" />
+
+
