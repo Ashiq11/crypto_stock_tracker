@@ -38,7 +38,7 @@ This project is a single-page Angular (v20+) application designed to track and c
   - Angular 20+ (standalone components)  
   - Angular Material (for forms, buttons, cards, and icons)  
   - RxJS (for reactive data streams, debouncing, and request cancellation)  
-  - Chart.js (line charts for historical data)  
+  - Chart.js (Candlestick charts for historical data)  
 
 - **Services:**  
   - `MarketService` – handles all API calls to Alpha Vantage.  
@@ -47,7 +47,6 @@ This project is a single-page Angular (v20+) application designed to track and c
 - **API:**  
   - Alpha Vantage (`https://www.alphavantage.co/documentation/`)  
   - Endpoints used:  
-    - `TIME_SERIES_INTRADAY` – intraday stock/crypto prices  
     - `TIME_SERIES_DAILY` – historical daily prices  
 
 - **Reactive Patterns:**  
