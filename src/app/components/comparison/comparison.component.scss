@@ -4,6 +4,6 @@
 .cards { display:flex; gap:12px; flex-wrap:wrap; }
 .asset-card { width: 240px; }
 .metric { display:flex; justify-content:space-between; margin-top:8px; }
-.label { color: rgba(0,0,0,0.6); font-size: 12px; }
-.value { font-weight:600; }
+.label { color: rgba(0,116,232,1); font-size: 12px; }
+.value { color: rgba(221,0,169,1);font-size: 12px; }
 .empty { color: rgba(0,0,0,0.6); padding: 12px; }

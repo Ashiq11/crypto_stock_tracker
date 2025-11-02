@@ -39,10 +39,10 @@ export class ChartComponent implements OnInit {
       }
     },
     scales: {
-      x: { 
-        type: 'time', 
-        time: { tooltipFormat: 'MMM dd, yyyy', unit: 'day' }, 
-        title: { display: true, text: 'Date' } 
+      x: {
+        type: 'time',
+        time: { tooltipFormat: 'MMM dd, yyyy', unit: 'day' },
+        title: { display: true, text: 'Date' }
       },
       y: { title: { display: true, text: 'Price (USD)' } }
     }
@@ -72,7 +72,7 @@ export class ChartComponent implements OnInit {
                 c: p.close
               })),
               borderColor: 'rgba(54, 162, 235, 0.8)',
-              color: { up: 'rgba(34,197,94,1)', down: 'rgba(239,68,68,1)', unchanged: 'rgba(107,114,128,1)' }
+              color: { up: 'rgba(34,197,94,1)', down: 'rgba(239,68,68,1)', unchanged: 'rgba(139, 92, 246,1)' }
             };
           });
 

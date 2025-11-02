@@ -44,7 +44,7 @@ export class MarketService {
     );
   }
 
-  /** TIME_SERIES_DAILY_ADJUSTED for stocks — returns OHLC history + meta */
+  /** TIME_SERIES_DAILY for stocks — returns OHLC history + meta */
   getStockDaily(symbol: string, outputSize: 'compact' | 'full' = 'compact'):
     Observable<{ meta: AssetMetaData; series: HistoricalPrice[] }> {
 
@@ -52,7 +52,7 @@ export class MarketService {
     if (this.cache.has(cacheKey)) return this.cache.get(cacheKey)!;
 
     const params = new HttpParams()
-      .set('function', 'TIME_SERIES_DAILY_ADJUSTED')
+      .set('function', 'TIME_SERIES_DAILY')
       .set('symbol', symbol)
       .set('outputsize', outputSize)
       .set('apikey', this.key);
@@ -75,7 +75,7 @@ export class MarketService {
           close: parseFloat(val['4. close']),
           volume: parseInt(val['5. volume'])
         }));
-
+        
         return {
           meta,
           series: series.sort((a, b) => a.date.localeCompare(b.date)) // ascending
@@ -152,7 +152,6 @@ export class MarketService {
           type: summary.type,
           currentPrice: last?.close ?? 0,
           currency: summary.currency || 'USD',
-          lastUpdated: meta.lastRefreshed,
           meta,
           history: series
         } as AssetDetail;

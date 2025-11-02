@@ -14,41 +14,40 @@
 
     <mat-card-content>
       <div class="metric">
-        <span class="label">Price</span>
-        <span class="value">{{ a.currentPrice | number:'1.2-2' }} {{ a.currency }}</span>
-      </div>
-
-      <div class="metric">
-        <span class="label">Last Updated</span>
-        <span class="value">{{ a.lastUpdated }}</span>
+        <span class="label">Price: </span>
+        <span class="value"> {{ a.currentPrice | number:'1.2-2' }} {{ a.currency }}</span>
       </div>
 
       @if (a.marketCap) {
       <div class="metric">
-        <span class="label">Market Cap</span>
-        <span class="value">{{ a.marketCap | number }}</span>
+        <span class="label">Market Cap: </span>
+        <span class="value"> {{ a.marketCap | number }}</span>
       </div>
       }
 
       @if (a.meta) {
       <div class="metric">
-        <span class="label">Last Refreshed</span>
-        <span class="value">{{ a.meta.lastRefreshed }}</span>
+        <span class="label">Information:  </span>
+        <span class="value"> {{ a.meta.information }}</span>
       </div>
       <div class="metric">
-        <span class="label">Output Size</span>
-        <span class="value">{{ a.meta.outputSize }}</span>
+        <span class="label">Last Refreshed: </span>
+        <span class="value"> {{ a.meta.lastRefreshed }}</span>
       </div>
       <div class="metric">
-        <span class="label">Time Zone</span>
-        <span class="value">{{ a.meta.timeZone }}</span>
+        <span class="label">Output Size: </span>
+        <span class="value"> {{ a.meta.outputSize }}</span>
+      </div>
+      <div class="metric">
+        <span class="label">Time Zone: </span>
+        <span class="value"> {{ a.meta.timeZone }}</span>
       </div>
       }
     </mat-card-content>
 
     <mat-card-actions>
       <button mat-icon-button aria-label="remove" (click)="remove(a.symbol)">
-        <mat-icon>X</mat-icon>
+        <mat-icon class="mat-icon-sm">X</mat-icon>
       </button>
     </mat-card-actions>
   </mat-card>

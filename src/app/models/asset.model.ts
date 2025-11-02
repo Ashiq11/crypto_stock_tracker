@@ -19,7 +19,6 @@ export interface AssetDetail {
   currentPrice: number;
   marketCap?: number | null;
   currency?: string;
-  lastUpdated?: string;
   meta?: AssetMetaData;          // store metadata info
   history?: HistoricalPrice[];   // now uses full OHLC instead of just close
 }
